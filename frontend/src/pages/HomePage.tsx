@@ -97,14 +97,20 @@ export default function Homepage() {
             msg.role === "user" ? (
               <div
                 key={idx}
-                className="w-full mx-auto p-4 rounded-xl bg-primary text-primary-foreground self-end"
+                className="
+                  w-full mx-auto p-4 rounded-xl
+                  bg-primary text-primary-foreground
+                  self-end"
               >
                 {msg.content}
               </div>
             ) : (
               <div
                 key={idx}
-                className="prose dark:prose-invert max-w-none bg-muted text-foreground p-4 rounded-lg shadow mb-4"
+                className="
+                  prose dark:prose-invert max-w-none
+                  bg-muted text-foreground p-4 rounded-lg
+                  shadow mb-4"
               >
                 <ReactMarkdown
                   components={{
@@ -138,7 +144,10 @@ export default function Homepage() {
         </div>
 
         {/* Input */}
-        <div className="border-t p-4 sticky bottom-0 z-50 bg-background text-foreground">
+        <div className="
+          border-t p-4 sticky bottom-0 z-50
+          bg-background text-foreground"
+        >
           <div className="max-w-2xl mx-auto flex items-center gap-4">
             <Textarea
               placeholder="Send a message..."
@@ -150,12 +159,23 @@ export default function Homepage() {
                   handleSend();
                 }
               }}
-              className="flex-1 resize-none min-h-[80px] max-h-[200px] rounded-md border border-input bg-muted/40 px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 placeholder:text-muted-foreground shadow-sm transition"
+              className="
+                flex-1 resize-none min-h-[80px]
+                max-h-[200px] rounded-md border
+                border-input bg-muted/40 px-4 py-3
+                text-sm focus-visible:outline-none
+                focus-visible:ring-2 focus-visible:ring-ring
+                focus-visible:ring-offset-2
+                placeholder:text-muted-foreground shadow-sm
+                transition"
             />
 
             <button
               onClick={handleSend}
-              className="p-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition"
+              className="
+                p-2 rounded-md bg-primary
+                text-primary-foreground
+                hover:bg-primary/90 transition"
             >
               <SendHorizonalIcon size={18} className="cursor-pointer" />
             </button>
