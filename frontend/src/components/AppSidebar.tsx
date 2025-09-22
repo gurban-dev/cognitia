@@ -104,7 +104,11 @@ export function AppSidebar() {
         <div>
           {/* Main Nav */}
           <SidebarGroup>
-            <SidebarGroupLabel className="text-xs text-muted-foreground uppercase px-4 pt-4 pb-2">
+            <SidebarGroupLabel
+              className="
+                text-xs text-muted-foreground
+                uppercase px-4 pt-4 pb-2
+            ">
               Main Menu
               <Badge
                 variant="secondary"
@@ -120,9 +124,14 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <Link
                         to={item.url}
-                        className="flex items-center gap-3 px-4 py-2 hover:bg-muted rounded-md transition"
+                        className="
+                          flex items-center gap-3
+                          px-4 py-2 hover:bg-muted
+                          rounded-md transition
+                        "
                       >
                         <item.icon className="w-5 h-5 text-muted-foreground" />
+
                         <span className="text-sm font-medium">
                           {item.title}
                         </span>
@@ -150,7 +159,12 @@ export function AppSidebar() {
           {/* Recent Chats */}
           {recentChats.length == 0 || (
             <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs text-muted-foreground uppercase px-4 pb-2">
+              <SidebarGroupLabel
+                className="
+                  text-xs text-muted-foreground
+                  uppercase px-4 pb-2
+                "
+              >
                 Recent Chats
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -184,7 +198,12 @@ export function AppSidebar() {
           {/* Yesterday */}
           {yesterdaysChats.length == 0 || (
             <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs text-muted-foreground uppercase px-4 pb-2">
+              <SidebarGroupLabel
+                className="
+                  text-xs text-muted-foreground
+                  uppercase px-4 pb-2
+                "
+              >
                 Yesterday
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -200,6 +219,7 @@ export function AppSidebar() {
                             )}
                           >
                             <MessageSquare className="w-4 h-4 text-muted-foreground" />
+
                             <span className="text-sm truncate">
                               {chat.title[0] == "'" || chat.title[0] == '"'
                                 ? chat.title.slice(1, -1)
@@ -218,7 +238,12 @@ export function AppSidebar() {
           {/* Last 7 Days */}
           {sevenDaysChats.length == 0 || (
             <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs text-muted-foreground uppercase px-4 pb-2">
+              <SidebarGroupLabel
+                className="
+                  text-xs text-muted-foreground
+                  uppercase px-4 pb-2
+                "
+              >
                 Last 7 Days
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -256,7 +281,11 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link
                     to="#"
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-muted rounded-md transition"
+                    className="
+                      flex items-center gap-3
+                      px-4 py-2 hover:bg-muted
+                      rounded-md transition
+                    "
                   >
                     <Bot className="w-5 h-5 text-muted-foreground" />
                     <span className="text-sm font-semibold">Explore GPTs</span>
@@ -271,12 +300,17 @@ export function AppSidebar() {
         <div className="p-4 border-t">
           <Link
             to="#"
-            className="flex items-center justify-between bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition"
+            className="
+              flex items-center justify-between bg-primary
+              text-primary-foreground px-4 py-2 rounded-md
+              hover:bg-primary/90 transition
+            "
           >
             <span className="flex items-center gap-2 text-sm font-medium">
               <Zap className="w-4 h-4" />
               Upgrade to Pro
             </span>
+
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
               New
             </Badge>

@@ -78,6 +78,7 @@ export default function Homepage() {
     }
 
     const newMessage = { role: "user", content: input };
+
     setMessages((prev) =>
       [...prev, newMessage].filter(
         (p) => p.content != "Welcome! I'm here to assist you."
@@ -85,6 +86,7 @@ export default function Homepage() {
     );
 
     mutation.mutate({ chat_id: chatID, content: input });
+
     setInput("");
   };
 
