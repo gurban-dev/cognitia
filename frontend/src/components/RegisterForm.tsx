@@ -18,6 +18,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
   const { register } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,6 +31,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setStatus('loading');
+
     setLoading(true);
     setError('');
 
@@ -46,9 +51,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
         first_name: formData.first_name || undefined,
         last_name: formData.last_name || undefined,
       });
+
+      setStatus('success');
     } catch (err) {
+      setStatus('error');
+
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
+      // Always executes.
       setLoading(false);
     }
   };
@@ -56,8 +66,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-background border rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
-        
+        <h2 className="text-2xl font-bold text-center mb-6">
+          Sign Up
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-2">
             <Input
@@ -76,7 +88,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
               onChange={handleChange}
             />
           </div>
-          
+
           <Input
             type="email"
             name="email_address"
@@ -115,6 +127,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
           >
             {loading ? 'Creating Account...' : 'Sign Up'}
           </Button>
+
+          <div className="flex justify-center items-center text-lg mt-4">
+            {status === 'success' && <p>Verification email sent!</p>}
+            {status === 'error' && <p>Failed to send verification email.</p>}
+          </div>
         </form>
 
         <div className="mt-4 text-center">

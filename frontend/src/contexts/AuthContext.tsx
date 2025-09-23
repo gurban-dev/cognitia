@@ -82,9 +82,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }) => {
     try {
       const response = await registerApi(data);
+
       setUser(response.user);
+
       setToken(response.token);
+
       localStorage.setItem('token', response.token);
+
       localStorage.setItem('user', JSON.stringify(response.user));
     } catch (error) {
       throw error;
@@ -117,6 +121,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-
-

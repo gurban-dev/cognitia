@@ -11,6 +11,8 @@ urlpatterns = [
 
 	# Authentication URLs
 	path("auth/register/", views.register, name="register"),
+	path('verify-token/', views.verify_token, name="verify_token"),
+
 	path("auth/login/", views.login, name="login"),
 	path("auth/logout/", views.logout, name="logout"),
 	path("auth/profile/", views.user_profile, name="user_profile"),

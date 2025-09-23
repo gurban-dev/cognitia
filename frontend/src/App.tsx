@@ -3,6 +3,7 @@ import MainLayout from "./components/MainLayout";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import ConfirmEmail from "./components/ConfirmEmail";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -49,6 +50,8 @@ const AppRoutes = () => {
         <Route index element={<HomePage />} />
         <Route path="chats/:chat_uid" element={<HomePage />} />
         <Route path="chats/new" element={<HomePage />} />
+        <Route path="confirm-email/:activationToken"
+          element={<ConfirmEmail />} />
       </Route>
     </Routes>
   );

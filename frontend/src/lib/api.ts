@@ -107,6 +107,24 @@ export interface AuthResponse {
   token: string;
 }
 
+interface VerifyEmailResponse {
+  message: string;
+}
+
+// Sends the token from the URL to the backend (Django)
+// for the purpose of confirming that it matches the
+// one in the database table.
+export const verifyToken = async (
+  activationToken: string): Promise<VerifyEmailResponse> => {
+
+  const response = await api.post(
+    'verify-token/',
+    { "activationToken": activationToken }
+  );
+
+  return response.data;
+};
+
 export async function register(data: {
   email_address: string;
   password: string;
@@ -116,6 +134,8 @@ export async function register(data: {
 }): Promise<AuthResponse> {
   try {
     const response = await api.post("/auth/register/", data);
+
+    console.log('api.ts register() response.data:', response.data)
 
     return response.data;
   } catch (err: unknown) {

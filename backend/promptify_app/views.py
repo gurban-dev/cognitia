@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from promptify_app.models import Chat, ChatMessage, CustomUser
+from promptify_app.models import ActivationToken, Chat, ChatMessage, CustomUser
 from promptify_app.serializers import (
   ChatMessageSerializer, ChatSerializer, 
   UserRegistrationSerializer, UserLoginSerializer,
@@ -16,6 +16,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import EmailMessage
 from django.http import JsonResponse
+from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import models
@@ -127,6 +128,36 @@ def seven_days_chat(request):
 	serializer = ChatSerializer(chats, many=True)
 	return Response(serializer.data)
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_token(request):
+	activation_token = request.data.get('activationToken')
+
+	try:
+		activation_token_obj = ActivationToken.objects.get(
+			activation_token=activation_token
+		)
+	except ActivationToken.DoesNotExist:
+		return JsonResponse({"message": "Token doesn't exist"}, status=400)
+
+	if activation_token_obj.used:
+		return JsonResponse({"message": "Token already used"}, status=400)
+
+	if activation_token_obj.is_expired():
+		return JsonResponse({"message": "Token expired"}, status=400)
+
+	# Activate user account
+	user = activation_token_obj.user
+	user.is_active = True
+	user.save()
+
+	# Mark token as used.
+	activation_token_obj.mark_used()
+
+	return JsonResponse(
+		{"message": "Account activated successfully"},
+		status=200
+	)
 
 # Authentication Views
 @api_view(['POST'])
@@ -134,23 +165,40 @@ def seven_days_chat(request):
 def register(request):
 	print('request.data:', request.data)
 
+	# Validate the incoming data from the frontend.
+	# The serializer checks that the data is correct.
 	serializer = UserRegistrationSerializer(data=request.data)
 
 	print('serializer.is_valid():', serializer.is_valid())
 
 	if serializer.is_valid():
+		email_address = serializer.validated_data['email_address']
+
+		# Temporarily store user data (cache, redis, or DB table "PendingUser")
+		# Instead of saving the user to the database, the validated data
+		# data is stored in cache (memory or Redis) for 10 minutes.
+		# This prevents unverified users from entering the database.
+		cache.set(email_address, serializer.validated_data, timeout=600)
+
+		# Generates a temporary code and emails it to the user.
+		# The code is needed to prove ownership of the email.
+		send_verification_code(email_address)
+
+		# The end user sees a message to check their email and enter the code.
+		return Response({"message": "Check your email to verify your account."})
+
 		user = serializer.save()
 		token, created = Token.objects.get_or_create(user=user)
 		user_serializer = UserSerializer(user)
-
-		# send_verification_code(request)
 
 		return Response({
 			'user': user_serializer.data,
 			'token': token.key
 		}, status=status.HTTP_201_CREATED)
+	else:
+		print('serializer.errors:', serializer.errors)
 
-	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -190,30 +238,6 @@ def generate_activation_token():
 	# (can adjust length).
   return secrets.token_urlsafe(32)
 
-class ActivationToken(models.Model):
-	# OneToOneField links token to a single user.
-	user = models.OneToOneField(
-		settings.AUTH_USER_MODEL, on_delete=models.CASCADE
-	)
-
-	# The unique activation token.
-	activation_token = models.CharField(max_length=64, unique=True)
-
-	created_at = models.DateTimeField(auto_now_add=True)
-
-	# expires_at defines token expiration time.
-	expires_at = models.DateTimeField()
-
-	# used flags whether token has been consumed.
-	used = models.BooleanField(default=False)
-
-	def is_expired(self):
-		return timezone.now() > self.expires_at
-
-	def mark_used(self):
-		self.used = True
-		self.save()
-
 def create_activation_token_obj(user, activation_token):
 	# Create the ActivationToken object.
 	ActivationToken.objects.create(
@@ -225,34 +249,32 @@ def create_activation_token_obj(user, activation_token):
 	)
 	print('Activation token object created.')
 
-def create_user_if_not_exists(email_address, activation_token):
-	User = get_user_model()
+# def create_user_if_not_exists(email_address, activation_token):
+# 	User = get_user_model()
 
-	# Try to find the user
-	user = User.objects.filter(email_address=email_address).first()
+# 	# Try to find the user
+# 	user = User.objects.filter(email_address=email_address).first()
 
-	if user:
-		if user.is_active:
-			print('The user already exists and has an active account.')
-			return
-		else:
-			print('The user exists, but their account is not active.')
-	else:
-		print('New User object created')
+# 	if user:
+# 		if user.is_active:
+# 			print('The user already exists and has an active account.')
+# 			return
+# 		else:
+# 			print('The user exists, but their account is not active.')
+# 	else:
+# 		print('New User object created.')
 
-		# Create a new user if not found
-		user = User.objects.create_user(
-			email_address=email_address
-		)
+# 		# Create a new user if not found
+# 		user = User.objects.create_user(
+# 			email_address=email_address
+# 		)
 
-		user.save()
+# 		user.save()
 
-	# Only reach here if user is not active (either found or just created)
-	create_activation_token_obj(user, activation_token)
+# 	# Only reach here if user is not active (either found or just created)
+# 	create_activation_token_obj(user, activation_token)
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def send_verification_code(request):
+def send_verification_code(email_address: str):
 	"""
 	Endpoint to send a verification email to the user.
 	Expects JSON payload with 'emailAddress' key.
@@ -261,12 +283,7 @@ def send_verification_code(request):
 	activation_token = str(generate_activation_token())
 
 	try:
-		data = request.data
-
-		print('data:', data)
-
-		email_address = data.get('emailAddress')
-
+		# -Check if the following condition is even necessary.
 		if not email_address:
 			logger.warning("Verification email request missing 'email' field.")
 
@@ -298,7 +315,7 @@ def send_verification_code(request):
 		# (example: using Celery).
 		email.send(fail_silently=False)
 
-		create_user_if_not_exists(email_address, activation_token)
+		# create_user_if_not_exists(email_address, activation_token)
 
 		logger.info(f"Sent verification email to {email_address}")
 
@@ -306,9 +323,8 @@ def send_verification_code(request):
 			{'message': 'Verification email sent successfully'},
 			status=status.HTTP_200_OK
 		)
-
-	except Exception as exc:
-		logger.error(f"Error sending verification email: {exc}", exc_info=True)
+	except Exception as exception:
+		logger.error(f"Error sending verification email: {exception}", exc_info=True)
 
 		return JsonResponse(
 			{'error': 'Internal server error. Please try again later.'},
