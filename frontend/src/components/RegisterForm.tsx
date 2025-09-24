@@ -138,7 +138,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onToggleMode }) => {
           <button
             type="button"
             onClick={onToggleMode}
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="
+              text-sm text-muted-foreground
+              hover:text-foreground
+              cursor-pointer
+            "
           >
             Already have an account? Sign in
           </button>

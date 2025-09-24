@@ -5,6 +5,8 @@ import { verifyToken } from '../lib/api';
 const ConfirmEmail: React.FC = () => {
   const { activationToken } = useParams<{ activationToken: string }>();
 
+  console.log('activationToken:', activationToken);
+
   const [tokenAlreadyUsed, setTokenAlreadyUsed] = useState(false);
 
   // const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -96,7 +98,7 @@ const ConfirmEmail: React.FC = () => {
 
         <div className="mt-6">
           <a
-            href="/chat-page/"
+            href="/auth/"
             className={`
               px-4 py-2 bg-indigo-600
               text-white rounded

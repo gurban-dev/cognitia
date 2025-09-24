@@ -133,6 +133,8 @@ def seven_days_chat(request):
 def verify_token(request):
 	activation_token = request.data.get('activationToken')
 
+	print('activation_token:', activation_token)
+
 	try:
 		activation_token_obj = ActivationToken.objects.get(
 			activation_token=activation_token

@@ -39,6 +39,9 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
+
+      <Route path="confirm-email/:activationToken" element={<ConfirmEmail />} />
+
       <Route
         path="/*"
         element={
@@ -50,8 +53,6 @@ const AppRoutes = () => {
         <Route index element={<HomePage />} />
         <Route path="chats/:chat_uid" element={<HomePage />} />
         <Route path="chats/new" element={<HomePage />} />
-        <Route path="confirm-email/:activationToken"
-          element={<ConfirmEmail />} />
       </Route>
     </Routes>
   );
