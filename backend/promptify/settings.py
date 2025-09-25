@@ -33,6 +33,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+SITE_ID = 1
+
 INSTALLED_APPS = [
 	'django.contrib.admin',
 	'django.contrib.auth',
@@ -43,8 +45,23 @@ INSTALLED_APPS = [
 	'promptify_app',
 	'rest_framework',
 	'rest_framework.authtoken',
-	'corsheaders'
+	'corsheaders',
+	'django.contrib.sites',
+	'allauth',
+	'allauth.account',
+	'allauth.socialaccount',
+	'allauth.socialaccount.providers.google'
 ]
+
+SOCIALACCOUNT_PROVIDERS = {
+	"google": {
+		"SCOPE": [
+			"profile",
+			"email"
+		],
+		"AUTH_PARAMS": {"access_type": "online"}
+	}
+}
 
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
@@ -124,7 +141,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -161,3 +177,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+
+AUTHENTICATION_BACKENDS = (
+	'django.contrib.auth.backends.ModelBackend',
+	'allauth.accounts.auth_backends.AuthenticationBackend'
+)
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
